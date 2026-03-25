@@ -2,6 +2,12 @@
 # ausführen mit: ./Push.sh dev  oder  ./Push.sh main <-- immer dahin
 # git branch 
 # git switch --> Wichtig!! Wechsel zum aktuellen Stand
+
+# To set remote first if neccessary
+# git remote add origin git@github.com:Johnyboi77/temp.git
+
+# And get Session KEy from Github for Access
+# git remote set-url origin https://github.com/Johnyboi77/temp.git
 # Branches Workflow anpassen zu working in dev wenn software live ist!! vorher dran gewöhnen
 
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
