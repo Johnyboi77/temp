@@ -70,19 +70,28 @@ git checkout "$BRANCH" 2>/dev/null || {
 }
 info "On branch: $BRANCH"
 
-# ── 6. Pull (skip if no upstream yet) ─────────
+# ── 6. Stash, Pull, Unstash ───────────────────
 if git ls-remote --exit-code origin "$BRANCH" &>/dev/null; then
+  info "Stashing local changes before pull..."
+  git stash
+
   info "Pulling latest from origin/$BRANCH..."
   git pull origin "$BRANCH" --rebase || {
     warning "Pull failed — there may be conflicts. Resolve them, then re-run."
+    git stash pop
     exit 1
   }
+
+  info "Restoring stashed changes..."
+  git stash pop
 else
   warning "No upstream branch yet — skipping pull (first push)"
 fi
 
 # ── 7. Stage & commit ─────────────────────────
-git add .
+info "Staging changes..."
+git status --short
+git add -A
 
 if git diff --cached --quiet; then
   warning "Nothing to commit — working tree clean"
