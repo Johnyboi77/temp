@@ -1,33 +1,102 @@
 #!/bin/bash
-# ausführen mit: ./Push.sh dev  oder  ./Push.sh main <-- immer dahin
-# git branch 
-# git switch --> Wichtig!! Wechsel zum aktuellen Stand
+# ─────────────────────────────────────────────
+#  Push.sh — Bulletproof Git Push Script
+#  Usage:
+#    ./Push.sh                        → push to main, auto commit message
+#    ./Push.sh dev                    → push to dev branch
+#    ./Push.sh main "my message"      → push to main with custom message
+# ─────────────────────────────────────────────
 
-# To set remote first if neccessary
-# git remote add origin git@github.com:Johnyboi77/temp.git
-
-# And get Session KEy from Github for Access
-# git remote set-url origin https://github.com/Johnyboi77/temp.git
-# Branches Workflow anpassen zu working in dev wenn software live ist!! vorher dran gewöhnen
+# ── CONFIG (only change these) ───────────────
+REMOTE_URL="https://github.com/Johnyboi77/temp.git"   # ← change repo URL here
+GIT_USER="Johnyboi77"
+GIT_EMAIL="jonasfrey0177@gmail.com"
+# ─────────────────────────────────────────────
 
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
-REMOTE_URL="git@github.com:Johnyboi77/temp.git"
 BRANCH="${1:-main}"
+COMMIT_MSG="${2:-$(date '+%Y-%m-%d %H:%M:%S') - Auto-commit from Push.sh}"
 
-cd "$REPO_PATH" || exit 1
+# ── Colors ────────────────────────────────────
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
+info()    { echo -e "${GREEN}[✔]${NC} $1"; }
+warning() { echo -e "${YELLOW}[!]${NC} $1"; }
+error()   { echo -e "${RED}[✘]${NC} $1"; exit 1; }
 
-### To add github email & user
-# git config --global user.email  "jonasfrey0177@gmail.com"
-# git config --global user.name "Johnyboi77"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Push.sh — Branch: $BRANCH"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Check git config
-echo "Current git user: $(git config user.name) <$(git config user.email)>"
+# ── 1. Navigate to repo ───────────────────────
+cd "$REPO_PATH" || error "Could not enter directory: $REPO_PATH"
+info "Working in: $REPO_PATH"
 
-# WICHTIG: Erst pullen!
-git pull origin "$BRANCH"
+# ── 2. Init git if not a repo yet ─────────────
+if [ ! -d ".git" ]; then
+  warning "Not a git repo — running git init..."
+  git init || error "git init failed"
+  info "Git repo initialized"
+fi
 
-# DANN adden & committen
+# ── 3. Set git user config if missing ─────────
+if [ -z "$(git config user.name)" ]; then
+  git config user.name "$GIT_USER"
+  info "Set git user.name to $GIT_USER"
+fi
+if [ -z "$(git config user.email)" ]; then
+  git config user.email "$GIT_EMAIL"
+  info "Set git user.email to $GIT_EMAIL"
+fi
+info "Git user: $(git config user.name) <$(git config user.email)>"
+
+# ── 4. Set remote if missing or wrong ─────────
+CURRENT_REMOTE=$(git remote get-url origin 2>/dev/null)
+if [ -z "$CURRENT_REMOTE" ]; then
+  git remote add origin "$REMOTE_URL"
+  info "Remote 'origin' added: $REMOTE_URL"
+elif [ "$CURRENT_REMOTE" != "$REMOTE_URL" ]; then
+  warning "Remote URL mismatch — updating..."
+  git remote set-url origin "$REMOTE_URL"
+  info "Remote updated to: $REMOTE_URL"
+else
+  info "Remote OK: $CURRENT_REMOTE"
+fi
+
+# ── 5. Ensure branch exists locally ───────────
+git checkout "$BRANCH" 2>/dev/null || {
+  warning "Branch '$BRANCH' not found — creating it..."
+  git checkout -b "$BRANCH" || error "Could not create branch '$BRANCH'"
+}
+info "On branch: $BRANCH"
+
+# ── 6. Pull (skip if no upstream yet) ─────────
+if git ls-remote --exit-code origin "$BRANCH" &>/dev/null; then
+  info "Pulling latest from origin/$BRANCH..."
+  git pull origin "$BRANCH" --rebase || {
+    warning "Pull failed — there may be conflicts. Resolve them, then re-run."
+    exit 1
+  }
+else
+  warning "No upstream branch yet — skipping pull (first push)"
+fi
+
+# ── 7. Stage & commit ─────────────────────────
 git add .
-git commit -m "$(date '+%Y-%m-%d %H:%M:%S') - Registry Workflow kaputt, aber Preview.tsx Fertig! Emails können daran angepasst werden"
 
-git push origin "$BRANCH"
+if git diff --cached --quiet; then
+  warning "Nothing to commit — working tree clean"
+else
+  git commit -m "$COMMIT_MSG" || error "Commit failed"
+  info "Committed: $COMMIT_MSG"
+fi
+
+# ── 8. Push ───────────────────────────────────
+info "Pushing to origin/$BRANCH..."
+git push origin "$BRANCH" || error "Push failed. Check your credentials or remote URL."
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+info "All done! Pushed to origin/$BRANCH"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
