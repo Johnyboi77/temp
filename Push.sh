@@ -11,7 +11,7 @@ REMOTE_URL="https://github.com/Johnyboi77/temp.git"
 GIT_USER="Johnyboi77"
 GIT_EMAIL="jonasfrey0177@gmail.com"
 
-COMMIT_MSG="Test erfolgreich"  
+COMMIT_MSG="$(date '+%Y-%m-%d %H:%M:%S') - Test erfolgreich"  
 # ─────────────────────────────────────────────
 
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
