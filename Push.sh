@@ -124,6 +124,7 @@ git push origin "$BRANCH" || error "Push failed. Check your credentials or remot
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "  ${YELLOW}Message:${NC} $COMMIT_MSG"
 info "All done! Pushed to origin/$BRANCH"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
