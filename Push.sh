@@ -90,7 +90,21 @@ fi
 
 # ── 7. Stage & commit ─────────────────────────
 info "Staging changes..."
-git status --short
+
+# Colored status output
+while IFS= read -r line; do
+  status="${line:0:2}"
+  file="${line:3}"
+  case "$status" in
+    " M"|"M "|"MM") echo -e "${YELLOW}  modified:  $file${NC}" ;;
+    " D"|"D ")      echo -e "${RED}  deleted:   $file${NC}" ;;
+    "??")           echo -e "${GREEN}  new file:  $file${NC}" ;;
+    "A ")           echo -e "${GREEN}  added:     $file${NC}" ;;
+    "R ")           echo -e "${YELLOW}  renamed:   $file${NC}" ;;
+    *)              echo -e "  $line" ;;
+  esac
+done < <(git status --porcelain)
+
 git add -A
 
 if git diff --cached --quiet; then
@@ -99,13 +113,3 @@ else
   git commit -m "$COMMIT_MSG" || error "Commit failed"
   info "Committed: $COMMIT_MSG"
 fi
-
-# ── 8. Push ───────────────────────────────────
-info "Pushing to origin/$BRANCH..."
-git push origin "$BRANCH" || error "Push failed. Check your credentials or remote URL."
-
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-info "All done! Pushed to origin/$BRANCH"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
