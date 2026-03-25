@@ -1,0 +1,402 @@
+// src/lib/email/templates/booking.tsx
+
+import * as React from 'react';
+import { Section, Heading, Text, Button } from '@react-email/components';
+import {
+  EmailLayout,
+  heading,
+  text,
+  buttonContainer,
+  button,
+  smallText,
+  infoBox,
+  infoLabel,
+  infoValue,
+} from './shared';
+
+// =============================================================================
+// Buchungsbestätigung
+// =============================================================================
+
+interface BookingConfirmationProps {
+  bookingId: string;
+  serviceName: string;
+  providerName: string;
+  date: string;
+  time: string;
+  price: number;
+  customerName: string;
+  address?: string;
+}
+
+export const BookingConfirmation = ({
+  bookingId,
+  serviceName,
+  providerName,
+  date,
+  time,
+  price,
+  customerName,
+  address,
+}: BookingConfirmationProps) => (
+  <EmailLayout>
+    <Heading style={heading}>Buchung bestätigt ✓</Heading>
+
+    <Text style={text}>
+      Hallo {customerName},
+    </Text>
+
+    <Text style={text}>
+      Ihre Buchung wurde erfolgreich bestätigt!
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Anbieter:</Text>
+      <Text style={infoValue}>{providerName}</Text>
+
+      <Text style={infoLabel}>Datum:</Text>
+      <Text style={infoValue}>{date}</Text>
+
+      <Text style={infoLabel}>Uhrzeit:</Text>
+      <Text style={infoValue}>{time}</Text>
+
+      {address && (
+        <>
+          <Text style={infoLabel}>Adresse:</Text>
+          <Text style={infoValue}>{address}</Text>
+        </>
+      )}
+
+      <Text style={infoLabel}>Preis:</Text>
+      <Text style={infoValue}>{price.toFixed(2)} €</Text>
+
+      <Text style={infoLabel}>Buchungsnummer:</Text>
+      <Text style={infoValue}>{bookingId}</Text>
+    </Section>
+
+    <Section style={buttonContainer}>
+      <Button href={`https://frey-one.com/bookings/${bookingId}`} style={button}>
+        Buchung ansehen
+      </Button>
+    </Section>
+
+    <Text style={smallText}>
+      Sie erhalten eine Erinnerung 24 Stunden vor Ihrem Termin.
+    </Text>
+  </EmailLayout>
+);
+
+// =============================================================================
+// Buchungsstornierung
+// =============================================================================
+
+interface BookingCancellationProps {
+  bookingId: string;
+  serviceName: string;
+  providerName: string;
+  date: string;
+  time: string;
+  customerName: string;
+  reason?: string;
+}
+
+export const BookingCancellation = ({
+  bookingId,
+  serviceName,
+  providerName,
+  date,
+  time,
+  customerName,
+  reason,
+}: BookingCancellationProps) => (
+  <EmailLayout>
+    <Heading style={heading}>Buchung storniert</Heading>
+
+    <Text style={text}>
+      Hallo {customerName},
+    </Text>
+
+    <Text style={text}>
+      Ihre Buchung wurde storniert.
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Anbieter:</Text>
+      <Text style={infoValue}>{providerName}</Text>
+
+      <Text style={infoLabel}>Datum:</Text>
+      <Text style={infoValue}>{date}</Text>
+
+      <Text style={infoLabel}>Uhrzeit:</Text>
+      <Text style={infoValue}>{time}</Text>
+
+      <Text style={infoLabel}>Buchungsnummer:</Text>
+      <Text style={infoValue}>{bookingId}</Text>
+
+      {reason && (
+        <>
+          <Text style={infoLabel}>Grund:</Text>
+          <Text style={infoValue}>{reason}</Text>
+        </>
+      )}
+    </Section>
+
+    <Text style={text}>
+      Eventuelle Rückerstattungen werden gemäß unseren Stornierungsbedingungen bearbeitet.
+    </Text>
+
+    <Section style={buttonContainer}>
+      <Button href="https://frey-one.com/search" style={button}>
+        Neue Buchung vornehmen
+      </Button>
+    </Section>
+  </EmailLayout>
+);
+
+// =============================================================================
+// Buchungserinnerung
+// =============================================================================
+
+interface BookingReminderProps {
+  bookingId: string;
+  serviceName: string;
+  providerName: string;
+  date: string;
+  time: string;
+  customerName: string;
+  address?: string;
+}
+
+export const BookingReminder = ({
+  bookingId,
+  serviceName,
+  providerName,
+  date,
+  time,
+  customerName,
+  address,
+}: BookingReminderProps) => (
+  <EmailLayout>
+    <Heading style={heading}>Erinnerung: Ihr Termin steht bevor</Heading>
+
+    <Text style={text}>
+      Hallo {customerName},
+    </Text>
+
+    <Text style={text}>
+      dies ist eine freundliche Erinnerung an Ihren bevorstehenden Termin:
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Anbieter:</Text>
+      <Text style={infoValue}>{providerName}</Text>
+
+      <Text style={infoLabel}>Datum:</Text>
+      <Text style={infoValue}>{date}</Text>
+
+      <Text style={infoLabel}>Uhrzeit:</Text>
+      <Text style={infoValue}>{time}</Text>
+
+      {address && (
+        <>
+          <Text style={infoLabel}>Adresse:</Text>
+          <Text style={infoValue}>{address}</Text>
+        </>
+      )}
+
+      <Text style={infoLabel}>Buchungsnummer:</Text>
+      <Text style={infoValue}>{bookingId}</Text>
+    </Section>
+
+    <Section style={buttonContainer}>
+      <Button href={`https://frey-one.com/bookings/${bookingId}`} style={button}>
+        Buchungsdetails ansehen
+      </Button>
+    </Section>
+
+    <Text style={smallText}>
+      Wir freuen uns auf Ihren Besuch!
+    </Text>
+  </EmailLayout>
+);
+
+// =============================================================================
+// Buchungserinnerung (1 Stunde vorher)
+// =============================================================================
+
+export const BookingReminderUrgent = ({
+  bookingId,
+  serviceName,
+  providerName,
+  date,
+  time,
+  customerName,
+  address,
+}: BookingReminderProps) => (
+  <EmailLayout>
+    <Heading style={heading}>⏰ Ihr Termin beginnt in 1 Stunde!</Heading>
+
+    <Text style={text}>
+      Hallo {customerName},
+    </Text>
+
+    <Text style={text}>
+      Ihr Termin beginnt in <strong>einer Stunde</strong>. Bitte stellen Sie sicher, dass Sie rechtzeitig dort sind.
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Anbieter:</Text>
+      <Text style={infoValue}>{providerName}</Text>
+
+      <Text style={infoLabel}>Datum:</Text>
+      <Text style={infoValue}>{date}</Text>
+
+      <Text style={infoLabel}>Uhrzeit:</Text>
+      <Text style={infoValue}>{time}</Text>
+
+      {address && (
+        <>
+          <Text style={infoLabel}>Adresse:</Text>
+          <Text style={infoValue}>{address}</Text>
+        </>
+      )}
+
+      <Text style={infoLabel}>Buchungsnummer:</Text>
+      <Text style={infoValue}>{bookingId}</Text>
+    </Section>
+
+    <Section style={buttonContainer}>
+      <Button href={`https://frey-one.com/bookings/${bookingId}`} style={button}>
+        Buchungsdetails ansehen
+      </Button>
+    </Section>
+
+    <Text style={smallText}>
+      Bis gleich! 🎉
+    </Text>
+  </EmailLayout>
+);
+
+// =============================================================================
+// Neue Buchung (für Provider)
+// =============================================================================
+
+interface NewBookingProps {
+  providerName: string;
+  serviceName: string;
+  customerName: string;
+  date: string;
+  time: string;
+  bookingId: string;
+}
+
+export const NewBooking = ({
+  providerName,
+  serviceName,
+  customerName,
+  date,
+  time,
+  bookingId,
+}: NewBookingProps) => (
+  <EmailLayout>
+    <Heading style={heading}>Neue Buchung 🎉</Heading>
+
+    <Text style={text}>
+      Hallo {providerName},
+    </Text>
+
+    <Text style={text}>
+      <span style={{ fontWeight: 'bold' }}>Großartig!</span> Sie haben eine neue Buchung erhalten!
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Kunde:</Text>
+      <Text style={infoValue}>{customerName}</Text>
+
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Datum:</Text>
+      <Text style={infoValue}>{date}</Text>
+
+      <Text style={infoLabel}>Uhrzeit:</Text>
+      <Text style={infoValue}>{time}</Text>
+    </Section>
+
+    <Section style={buttonContainer}>
+      <Button href={`https://frey-one.com/bookings/${bookingId}`} style={button}>
+        Buchung ansehen
+      </Button>
+    </Section>
+
+    <Text style={text}>
+      <span style={{ fontWeight: 'bold' }}>Bereiten Sie sich vor und liefern Sie beste Qualität!</span> ⭐
+    </Text>
+  </EmailLayout>
+);
+
+// =============================================================================
+// Bewertungsanfrage
+// =============================================================================
+
+interface ReviewRequestProps {
+  customerName: string;
+  serviceName: string;
+  providerName: string;
+  bookingId: string;
+}
+
+export const ReviewRequest = ({
+  customerName,
+  serviceName,
+  providerName,
+  bookingId,
+}: ReviewRequestProps) => (
+  <EmailLayout>
+    <Heading style={heading}>Bewerten Sie Ihre letzte Buchung</Heading>
+
+    <Text style={text}>
+      Hallo {customerName},
+    </Text>
+
+    <Text style={text}>
+      wie war Ihre Erfahrung mit <span style={{ fontWeight: 'bold' }}>{providerName}</span>?
+    </Text>
+
+    <Text style={text}>
+      Ihre Bewertung hilft anderen Kunden bei der Entscheidung und unterstützt
+      Anbieter dabei, ihren Service zu verbessern.
+    </Text>
+
+    <Section style={infoBox}>
+      <Text style={infoLabel}>Dienstleistung:</Text>
+      <Text style={infoValue}>{serviceName}</Text>
+
+      <Text style={infoLabel}>Anbieter:</Text>
+      <Text style={infoValue}>{providerName}</Text>
+    </Section>
+
+    <Section style={buttonContainer}>
+      <Button href={`https://frey-one.com/bookings/${bookingId}/review`} style={button}>
+        Jetzt bewerten
+      </Button>
+    </Section>
+
+    <Text style={smallText}>
+      Die Bewertung dauert nur 1 Minute! ⭐
+    </Text>
+  </EmailLayout>
+);
+
