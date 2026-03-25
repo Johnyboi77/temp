@@ -2,20 +2,25 @@
 # ─────────────────────────────────────────────
 #  Push.sh — Bulletproof Git Push Script
 #  Usage:
-#    ./Push.sh                        → push to main, auto commit message
+#    ./Push.sh                        → push to main
 #    ./Push.sh dev                    → push to dev branch
-#    ./Push.sh main "my message"      → push to main with custom message
 # ─────────────────────────────────────────────
 
 # ── CONFIG (only change these) ───────────────
-REMOTE_URL="https://github.com/Johnyboi77/temp.git"   # ← change repo URL here
+REMOTE_URL="https://github.com/Johnyboi77/temp.git"
 GIT_USER="Johnyboi77"
 GIT_EMAIL="jonasfrey0177@gmail.com"
+
+COMMIT_MSG="Deine Nachricht hier"   # ← commit message hier eintragen
 # ─────────────────────────────────────────────
 
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
 BRANCH="${1:-main}"
-COMMIT_MSG="${2:-$(date '+%Y-%m-%d %H:%M:%S') - Auto-commit from Push.sh}"
+
+# Fallback to timestamp if COMMIT_MSG is empty
+if [ -z "$COMMIT_MSG" ]; then
+  COMMIT_MSG="$(date '+%Y-%m-%d %H:%M:%S') - Auto-commit from Push.sh"
+fi
 
 # ── Colors ────────────────────────────────────
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
@@ -73,17 +78,17 @@ info "On branch: $BRANCH"
 # ── 6. Stash, Pull, Unstash ───────────────────
 if git ls-remote --exit-code origin "$BRANCH" &>/dev/null; then
   info "Stashing local changes before pull..."
-  git stash
+  git stash -q
 
   info "Pulling latest from origin/$BRANCH..."
   git pull origin "$BRANCH" --rebase || {
     warning "Pull failed — there may be conflicts. Resolve them, then re-run."
-    git stash pop
+    git stash pop -q
     exit 1
   }
 
   info "Restoring stashed changes..."
-  git stash pop
+  git stash pop -q
 else
   warning "No upstream branch yet — skipping pull (first push)"
 fi
@@ -91,7 +96,6 @@ fi
 # ── 7. Stage & commit ─────────────────────────
 info "Staging changes..."
 
-# Colored status output
 while IFS= read -r line; do
   status="${line:0:2}"
   file="${line:3}"
@@ -113,3 +117,13 @@ else
   git commit -m "$COMMIT_MSG" || error "Commit failed"
   info "Committed: $COMMIT_MSG"
 fi
+
+# ── 8. Push ───────────────────────────────────
+info "Pushing to origin/$BRANCH..."
+git push origin "$BRANCH" || error "Push failed. Check your credentials or remote URL."
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+info "All done! Pushed to origin/$BRANCH"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
